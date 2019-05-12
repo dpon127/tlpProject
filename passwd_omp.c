@@ -44,9 +44,10 @@ byte AlphaToChar(byte b) {
 
 // 6-character alphabetic password
 void BruteForcePassword(byte* hash) {
-   #pragma omp parallel
-   #pragma omp for collapse(6) 
-   for (byte b0 = 0; b0 < NUM_CHARS; b0++) {
+   #pragma omp parallel  
+{
+   #pragma omp for collapse(6)
+   for (byte b0 = 0; b0 < NUM_CHARS; b0++) 
       for (byte b1 = 0; b1 < NUM_CHARS; b1++)
          for (byte b2 = 0; b2 < NUM_CHARS; b2++)
             for (byte b3 = 0; b3 < NUM_CHARS; b3++)
@@ -58,16 +59,18 @@ void BruteForcePassword(byte* hash) {
                      
                      byte test_hash[SHA256_DIGEST_LENGTH];
                      SHA256(test_string, LENGTH, test_hash);
-
+		
+		     //#pragma omp critical
                      if (Match(hash, test_hash)) {
                         printf("%s\n", test_string); 
-		     	#pragma omp cancel for
+			#pragma omp cancel for
                      }
 
 		     #pragma omp cancellation point for
 		     
                   }
-   }
+   
+}
 }
 
 
