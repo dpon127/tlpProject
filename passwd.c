@@ -10,6 +10,12 @@
 
 typedef unsigned char byte;
 
+double wallTime() // returns time in MS as a double
+{
+   struct timeval tv;
+   gettimeofday(&tv, 0);
+   return tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
+}
 
 int Match(byte *a, byte* b) {
    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++)
@@ -38,7 +44,7 @@ byte AlphaToChar(byte b) {
 
 // 6-character alphabetic password
 void BruteForcePassword(byte* hash) {
-   for (byte b0 = 0; b0 < NUM_CHARS; b0++) {
+   for (byte b0 = 0; b0 < NUM_CHARS; b0++) 
       for (byte b1 = 0; b1 < NUM_CHARS; b1++)
          for (byte b2 = 0; b2 < NUM_CHARS; b2++)
             for (byte b3 = 0; b3 < NUM_CHARS; b3++)
@@ -50,27 +56,30 @@ void BruteForcePassword(byte* hash) {
                      
                      byte test_hash[SHA256_DIGEST_LENGTH];
                      SHA256(test_string, LENGTH, test_hash);
-
+		
+		     //#pragma omp critical
                      if (Match(hash, test_hash)) {
                         printf("%s\n", test_string);
-                     
-                        return;
+			return; 
                      }
-                  }
-   }
-}
 
+		     
+                  }
+   
+}
 
 int main(int argc, char **argv)
 {
    int num_hashes = 0;
    int hashes_read = 0;
+   double start, end;
    FILE* file = fopen(argv[1], "r");
 
    char hash_string[100];
 
    fscanf(file, "%d", &num_hashes);
   
+   start = wallTime();
 //   struct timeval  tv1, tv2;
 
 //   gettimeofday(&tv1, NULL);
@@ -89,7 +98,8 @@ int main(int argc, char **argv)
 //      (double) (tv2.tv_sec - tv1.tv_sec);
    
 //   fprintf(stderr, "Total time: %.3f seconds\n", tElapsed);
-  
+   end = wallTime();
+   printf("time = %fms\n", end - start);
    fclose(file);
     
    return 0;

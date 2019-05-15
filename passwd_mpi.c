@@ -14,7 +14,7 @@ typedef unsigned char byte;
 typedef struct 
 {
    int num_found;
-   int max_num;
+   int max_found;
 } PASS;
 
 PASS pass;
@@ -74,12 +74,15 @@ void BruteForcePassword(byte* hash) {
 
                      if (Match(hash, test_hash)) {
                         printf("%s\n", test_string);
-                        pass.num_found++;  
-			printf("%d\n", pass.num_found);
+                        pass.num_found = 1;  
+			//MPI_Reduce(&(pass.num_found), &(pass.max_found), 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
                         return;
                      }
 
-		     //if (pass.num_found == pass.max_num)
+		     if (pass.max_found == 1){
+			pass.num_found = 0;
+			return;
+		     }
                   }
    }
 }
@@ -101,8 +104,8 @@ int main(int argc, char **argv)
 
 
    fscanf(file, "%d", &num_hashes);
-   pass.max_num = num_hashes;   
    pass.num_found = 0;
+   pass.max_found = 0;
 
    if(myid == 0)
      start = wallTime();  
